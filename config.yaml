@@ -1,0 +1,36 @@
+---
+openshift_provision:
+  resource_path: ./resources
+
+  cluster_resources:
+  - cluster/oauth.config.openshift.io.yaml
+
+  cluster_role_bindings:
+  - role: cluster-admin
+    groups:
+    - admins
+    users:
+    - system:serviceaccount:kube-system:provisioner
+
+  groups:
+  - name: admins
+    members:
+    - alice
+    - bob
+    remove_unlisted_members: true
+
+  projects:
+  - name: kube-system
+    resources:
+    - action: delete
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: kubeadmin
+
+    service_accounts:
+    - provisioner
+
+  - name: openshift-config
+    resources:
+    - openshift-config/htpasswd-secret.yaml.j2
